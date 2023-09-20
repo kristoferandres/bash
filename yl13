@@ -1,0 +1,23 @@
+#!/bin/bash
+
+# Funktsioon "varunda_kodukataloog", võtab kasutaja kodukataloogi ja loob sellest backup'i
+varunda_kodukataloog() {
+    local kasutaja=$(whoami) # hetke kasutaja nimi
+    local kodukataloog="/home/$kasutaja" # kasutaja kodukataloogi tee
+    local backup_kaust="/home/$kasutaja/backup" # backup'i kataloog
+    local kuupaev_kellaaeg=$(date +"%Y-%m-%d_%H-%M-%S") # praegune kuupäev ja kellaaeg
+
+    # Kontrollime, kas varundamise kataloog eksisteerib, kui mitte, siis loome selle
+    if [ ! -d "$backup_kaust" ]; then
+        mkdir -p "$backup_kaust"
+    fi
+
+    # Kasutame rsync'i kodukataloogi varundamiseks, välistades backup'i kausta
+    sudo rsync -av --exclude="$backup_kaust" "$kodukataloog" "$backup_kaust/$kasutaja-$kuupaev_kellaaeg"
+
+    echo "Varundati kasutaja kodukataloog: $kodukataloog"
+}
+
+# Kasuta funktsiooni varunda_kodukataloog
+varunda_kodukataloog
+

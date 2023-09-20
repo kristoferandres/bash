@@ -1,0 +1,30 @@
+#!/bin/bash
+
+# Kontrolli, kas nimekiri.txt on olemas ja fail
+nimekiri="nimekiri.txt"
+if [ ! -f "$nimekiri" ]; then
+    echo "Hoiatus: $nimekiri ei ole fail või ei eksisteeri!"
+    exit 1
+fi
+
+# Muuda nimed väiketähtedeks ja asenda täpitähed "õüäö" "ouao" vastu
+nimekiri_cleaned="puhastatud_nimekiri.txt"
+sed 's/õ/o/g; s/ü/u/g; s/ä/a/g; s/ö/o/g' "$nimekiri" | tr '[:upper:]' '[:lower:]' > "$nimekiri_cleaned"
+
+# Loome ajutise faili kasutajate ja paroolide hoidmiseks
+tmp_file=$(mktemp)
+
+# Loome kasutajad ja genereerime paroolid
+while IFS= read -r rida; do
+    nimi=$(echo "$rida" | awk '{print $1"."$2}')
+    parool=$(date +%s%N${RANDOM}${RANDOM} | sha256sum | head -c12)
+    sudo useradd -m -s /bin/bash "$nimi" # loome kasutaja
+    echo "$nimi $parool" >> "$tmp_file" # salvestame kasutajanime ja parooli ajutisse faili
+done < "$nimekiri_cleaned"
+
+# Väljastame kasutajad ja paroolid
+cat "$tmp_file"
+
+# Eemaldame ajutised failid
+rm "$nimekiri_cleaned" "$tmp_file"
+

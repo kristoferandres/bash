@@ -1,0 +1,34 @@
+#!/bin/bash
+
+# Küsi kasutajanime
+read -p "Sisesta kasutajanimi: " username
+
+# Küsi ja varja parool
+read -s -p "Sisesta parool: " password
+
+# Küsi gruppi või kasuta vaikimisi "kylaline" gruppi
+read -p "Sisesta grupi nimi (või vajuta Enter vaikimisi grupi jaoks): " group
+if [ -z "$group" ]; then
+  group="kylaline"
+fi
+
+# Luua uus kasutaja
+sudo useradd -m -g "$group" -s /bin/bash "$username"
+
+# Määra parool uuele kasutajale
+echo "$username:$password" | sudo chpasswd
+
+# Loome kasutaja kodukataloogi
+home_directory="/home/$username"
+sudo mkdir -p "$home_directory/kataloog"
+
+# Loome faili "teretulemast_kasutajanimi.txt"
+welcome_file="$home_directory/kataloog/teretulemast_$username.txt"
+sudo touch "$welcome_file"
+
+# Anna õigused failile kasutajale
+sudo chown "$username:$group" "$welcome_file"
+
+# Väljasta teade kasutajale
+echo "Kasutaja $username on loodud ja fail $welcome_file on loodud kataloogis $home_directory."
+

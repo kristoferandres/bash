@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# Loome ajutise faili, kuhu salvestada ainult kasutajad
+tmp_file=$(mktemp)
+
+# Kasutame awk'i, et eraldada ainult kasutajad
+awk -F: '$3 >= 1000 && $1 != "nobody" { print $1 }' /etc/passwd > "$tmp_file"
+
+# Kuvame ajutisest failist kasutajad
+cat "$tmp_file"
+
+# Eemaldame ajutise faili
+rm "$tmp_file"
+

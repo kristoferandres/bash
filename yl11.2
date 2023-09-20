@@ -1,0 +1,34 @@
+#!/bin/bash
+
+# Kontrollib, kas skriptile anti vajalikud argumendid
+if [ $# -ne 2 ]; then
+    echo "Kasuta skripti järgmiselt: $0 <fail> <faili_õigused>."
+    exit 1
+fi
+
+# Võta argumendid
+fail=$1
+soovitud_oigused=$2
+
+# Kontrolli, kas fail eksisteerib
+if [ ! -e $fail ]; then
+    echo "Hoiatus: Fail $fail ei ole olemas!"
+    exit 1
+fi
+
+# Kontrolli, kas fail on tõesti fail
+if [ ! -f $fail ]; then
+    echo "Hoiatus: $fail ei ole fail!"
+    exit 1
+fi
+
+# Leia hetkel määratud faili õigused
+hetke_oigused=$(stat -c %a $fail)
+
+# Kontrolli, kas faili õigused on õiged
+if [ $hetke_oigused -eq $soovitud_oigused ]; then
+    echo "Fail $fail on olemas ja õigustega korrektselt määratud."
+else
+    echo "Hoiatus: Faili $fail õigused on $hetke_oigused, peaksid olema $soovitud_oigused!"
+fi
+
